@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import * as Icons from '@element-plus/icons-vue'
 import StatCard from '../components/StatCard.vue'
 import EmptyState from '../components/EmptyState.vue'
-import { getStats } from '../api/db'
+import { getClasses, getCourses, getNotices, getStats } from '../api/db'
 import { getAllStudents } from '../api/xuesheng'
 import { auth, currentRole } from '../store/auth'
 
@@ -13,6 +13,10 @@ const loading = ref(true)
 const stats = ref({ userCount: 0, classCount: 0, courseCount: 0, noticeCount: 0, onlineToday: 0, roleDist: [], recentLogs: [] })
 const studentCount = ref(0)
 const studentError = ref(false)
+const students = ref([])
+const classes = ref([])
+const courses = ref([])
+const notices = ref([])
 
 const role = computed(() => currentRole())
 const greeting = computed(() => {
@@ -27,6 +31,36 @@ const greeting = computed(() => {
 // 角色分布图配色
 const roleColors = { super_admin: '#7c4dff', admin: '#1b87db', teacher: '#00b578', student: '#ff9f43' }
 const maxRoleCount = computed(() => Math.max(1, ...stats.value.roleDist.map((r) => r.count)))
+const roleDisplayName = (role) => role.code === 'student' ? '学生账号' : role.name
+
+const classDist = computed(() => {
+  const className = Object.fromEntries(classes.value.map((c) => [c.id, c.name]))
+  const map = {}
+  students.value.forEach((s) => {
+    const key = s.class || 'none'
+    map[key] = (map[key] || 0) + 1
+  })
+  return Object.entries(map)
+    .map(([id, count]) => ({ key: id, name: id === 'none' ? '未分班' : className[id] || `${id} 班`, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+})
+const courseTypeDist = computed(() => {
+  const map = {}
+  courses.value.forEach((c) => { map[c.type || '未分类'] = (map[c.type || '未分类'] || 0) + 1 })
+  return Object.entries(map).map(([name, count]) => ({ name, count }))
+})
+const noticeStatusDist = computed(() => {
+  const publicCount = notices.value.filter((n) => n.status === 1).length
+  const hiddenCount = notices.value.length - publicCount
+  return [
+    { name: '公开公告', count: publicCount },
+    { name: '隐藏公告', count: hiddenCount }
+  ].filter((item) => item.count > 0)
+})
+const maxClassCount = computed(() => Math.max(1, ...classDist.value.map((x) => x.count)))
+const maxCourseTypeCount = computed(() => Math.max(1, ...courseTypeDist.value.map((x) => x.count)))
+const maxNoticeStatusCount = computed(() => Math.max(1, ...noticeStatusDist.value.map((x) => x.count)))
 
 const logIcons = {
   登录: { icon: 'CircleCheck', color: '#00b578' },
@@ -60,11 +94,20 @@ function go(path) {
 }
 
 onMounted(async () => {
-  const [s] = await Promise.all([
+  const [s, c, courseList, noticeList] = await Promise.all([
     getStats(),
-    getAllStudents().then(({ data }) => { studentCount.value = data.length }).catch(() => { studentError.value = true })
+    getClasses(),
+    getCourses(),
+    getNotices(),
+    getAllStudents().then(({ data }) => {
+      students.value = data
+      studentCount.value = data.length
+    }).catch(() => { studentError.value = true })
   ])
   stats.value = s
+  classes.value = c
+  courses.value = courseList
+  notices.value = noticeList
   loading.value = false
 })
 </script>
@@ -91,33 +134,79 @@ onMounted(async () => {
     <!-- 统计卡片 -->
     <div class="stat-grid">
       <StatCard label="系统用户数" :value="stats.userCount" icon="UserFilled" color="#1b87db" :loading="loading" />
-      <StatCard label="学生总数" :value="studentError ? '--' : studentCount" icon="Avatar" color="#00b578" :loading="loading" suffix="人" />
+      <StatCard label="学生信息数" :value="studentError ? '--' : studentCount" icon="Avatar" color="#00b578" :loading="loading" suffix="人" />
       <StatCard label="班级数" :value="stats.classCount" icon="School" color="#7c4dff" :loading="loading" />
       <StatCard label="课程数" :value="stats.courseCount" icon="Reading" color="#ff9f43" :loading="loading" />
       <StatCard label="公告数" :value="stats.noticeCount" icon="Bell" color="#f56c6c" :loading="loading" />
     </div>
 
     <div class="dash-grid">
-      <!-- 角色分布 -->
+      <!-- 综合分布 -->
       <el-card class="panel card-hover" shadow="never">
         <template #header>
-          <div class="panel-title"><el-icon><Icons.PieChart /></el-icon> 角色用户分布</div>
+          <div class="panel-title"><el-icon><Icons.PieChart /></el-icon> 综合分布</div>
         </template>
         <template v-if="loading">
-          <el-skeleton animated :rows="4" />
+          <el-skeleton animated :rows="8" />
         </template>
         <template v-else-if="stats.roleDist.length">
-          <div class="role-item" v-for="r in stats.roleDist" :key="r.code">
-            <div class="role-info">
-              <span class="role-dot" :style="{ background: roleColors[r.code] || '#1b87db' }"></span>
-              <span class="role-name">{{ r.name }}</span>
-              <span class="role-count">{{ r.count }} 人</span>
+          <div class="dist-section">
+            <div class="dist-title">系统账号角色分布</div>
+            <div class="role-item" v-for="r in stats.roleDist" :key="r.code">
+              <div class="role-info">
+                <span class="role-dot" :style="{ background: roleColors[r.code] || '#1b87db' }"></span>
+                <span class="role-name">{{ roleDisplayName(r) }}</span>
+                <span class="role-count">{{ r.count }} 人</span>
+              </div>
+              <div class="role-bar">
+                <div
+                  class="role-bar-inner"
+                  :style="{ width: (r.count / maxRoleCount) * 100 + '%', background: roleColors[r.code] || '#1b87db' }"
+                ></div>
+              </div>
             </div>
-            <div class="role-bar">
-              <div
-                class="role-bar-inner"
-                :style="{ width: (r.count / maxRoleCount) * 100 + '%', background: roleColors[r.code] || '#1b87db' }"
-              ></div>
+          </div>
+
+          <div class="dist-section">
+            <div class="dist-title">学生班级分布 Top 5</div>
+            <div class="role-item compact" v-for="item in classDist" :key="item.key">
+              <div class="role-info">
+                <span class="role-dot" style="background: #00b578"></span>
+                <span class="role-name">{{ item.name }}</span>
+                <span class="role-count">{{ item.count }} 人</span>
+              </div>
+              <div class="role-bar">
+                <div class="role-bar-inner" :style="{ width: (item.count / maxClassCount) * 100 + '%', background: '#00b578' }"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mini-dist-grid">
+            <div class="dist-section mini">
+              <div class="dist-title">课程类型</div>
+              <div class="role-item compact" v-for="item in courseTypeDist" :key="item.name">
+                <div class="role-info">
+                  <span class="role-dot" style="background: #ff9f43"></span>
+                  <span class="role-name">{{ item.name }}</span>
+                  <span class="role-count">{{ item.count }} 门</span>
+                </div>
+                <div class="role-bar">
+                  <div class="role-bar-inner" :style="{ width: (item.count / maxCourseTypeCount) * 100 + '%', background: '#ff9f43' }"></div>
+                </div>
+              </div>
+            </div>
+            <div class="dist-section mini">
+              <div class="dist-title">公告状态</div>
+              <div class="role-item compact" v-for="item in noticeStatusDist" :key="item.name">
+                <div class="role-info">
+                  <span class="role-dot" :style="{ background: item.name.includes('公开') ? '#67c23a' : '#9aa4b2' }"></span>
+                  <span class="role-name">{{ item.name }}</span>
+                  <span class="role-count">{{ item.count }} 条</span>
+                </div>
+                <div class="role-bar">
+                  <div class="role-bar-inner" :style="{ width: (item.count / maxNoticeStatusCount) * 100 + '%', background: item.name.includes('公开') ? '#67c23a' : '#9aa4b2' }"></div>
+                </div>
+              </div>
             </div>
           </div>
         </template>
@@ -165,7 +254,10 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.dashboard { max-width: 1200px; }
+.dashboard {
+  width: 100%;
+  max-width: none;
+}
 
 .welcome { margin-bottom: 20px; }
 .welcome-inner {
@@ -190,6 +282,7 @@ onMounted(async () => {
 .dash-grid {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
+  align-items: stretch;
   gap: 16px;
   margin-bottom: 20px;
 }
@@ -204,19 +297,33 @@ onMounted(async () => {
   color: var(--text-h);
 }
 
-.role-item { margin-bottom: 18px; }
+.dist-section + .dist-section,
+.mini-dist-grid { margin-top: 14px; }
+.dist-title {
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+.mini-dist-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.role-item { margin-bottom: 12px; }
+.role-item.compact { margin-bottom: 9px; }
 .role-info {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   font-size: 13px;
 }
 .role-dot { width: 8px; height: 8px; border-radius: 50%; }
 .role-name { color: var(--text-h); font-weight: 500; }
 .role-count { margin-left: auto; color: var(--text-light); }
 .role-bar {
-  height: 8px;
+  height: 7px;
   border-radius: 4px;
   background: #eef2f7;
   overflow: hidden;

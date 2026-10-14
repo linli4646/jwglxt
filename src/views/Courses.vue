@@ -5,6 +5,7 @@ import * as Icons from '@element-plus/icons-vue'
 import EmptyState from '../components/EmptyState.vue'
 import SkeletonTable from '../components/SkeletonTable.vue'
 import { getCourses, addCourse, updateCourse, deleteCourse, getUsers, getClasses, writeLog } from '../api/db'
+import { hasPerm } from '../store/auth'
 
 const loading = ref(true)
 const saving = ref(false)

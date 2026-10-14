@@ -176,13 +176,15 @@ onMounted(load)
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column v-if="isManager" label="操作" width="200" align="center">
+          <el-table-column v-if="isManager" label="操作" width="240" align="center" fixed="right">
             <template #default="{ row }">
-              <el-button v-perm="'notice:top'" size="small" round :type="row.top ? 'warning' : 'primary'" plain @click="toggleTop(row)">
-                {{ row.top ? '取消置顶' : '置顶' }}
-              </el-button>
-              <el-button v-perm="'notice:edit'" size="small" round @click="openEdit(row)">编辑</el-button>
-              <el-button v-perm="'notice:delete'" size="small" type="danger" plain round @click="handleDelete(row)">删除</el-button>
+              <div class="action-buttons">
+                <el-button v-perm="'notice:top'" size="small" round :type="row.top ? 'warning' : 'primary'" plain @click="toggleTop(row)">
+                  {{ row.top ? '取消置顶' : '置顶' }}
+                </el-button>
+                <el-button v-perm="'notice:edit'" size="small" round @click="openEdit(row)">编辑</el-button>
+                <el-button v-perm="'notice:delete'" size="small" type="danger" plain round @click="handleDelete(row)">删除</el-button>
+              </div>
             </template>
           </el-table-column>
           <template #empty>
@@ -299,4 +301,12 @@ onMounted(load)
 }
 
 .pager { display: flex; justify-content: flex-end; margin-top: 18px; }
+.action-buttons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.action-buttons :deep(.el-button + .el-button) { margin-left: 0; }
 </style>

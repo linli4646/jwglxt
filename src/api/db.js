@@ -24,10 +24,10 @@ function seed() {
       { id: 10, account: 'student04', password: '123456', name: '刘芳', role: 'student', status: 1, phone: '13900000003', email: 'liuf@jwglxt.edu', classNo: 3, createTime: now, lastLogin: null, loginCount: 0 }
     ],
     roles: [
-      { code: 'super_admin', name: '超级管理员', desc: '拥有系统全部权限，可管理系统、用户、权限、日志', menus: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], perms: ['*'], builtin: true },
-      { code: 'admin', name: '管理员', desc: '负责班级、课程、公告等业务管理', menus: [1, 2, 3, 4, 6, 8, 12], perms: ['student:add', 'student:edit', 'student:delete', 'user:add', 'user:edit', 'user:delete', 'user:toggle', 'class:add', 'class:edit', 'class:delete', 'class:assign', 'course:add', 'course:edit', 'course:delete', 'notice:add', 'notice:edit', 'notice:delete', 'notice:top'], builtin: true },
-      { code: 'teacher', name: '教师', desc: '查看授课课程与学生信息', menus: [1, 2, 5, 6, 12], perms: [], builtin: true },
-      { code: 'student', name: '学生', desc: '查看公告与个人课程信息', menus: [1, 5, 6, 12], perms: [], builtin: true }
+      { code: 'super_admin', name: '超级管理员', desc: '拥有系统全部权限，可管理系统、用户、权限、日志', menus: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], perms: ['*'], builtin: true },
+      { code: 'admin', name: '管理员', desc: '负责班级、课程、公告等业务管理', menus: [1, 2, 3, 4, 6, 8, 12, 13, 14], perms: ['student:add', 'student:edit', 'student:delete', 'user:add', 'user:edit', 'user:delete', 'user:toggle', 'class:add', 'class:edit', 'class:delete', 'class:assign', 'course:add', 'course:edit', 'course:delete', 'notice:add', 'notice:edit', 'notice:delete', 'notice:top', 'grade:add', 'grade:edit', 'grade:delete', 'grade:export', 'attendance:add', 'attendance:edit', 'attendance:delete', 'attendance:export'], builtin: true },
+      { code: 'teacher', name: '教师', desc: '查看授课课程与学生信息', menus: [1, 2, 5, 6, 12, 13, 14], perms: ['grade:add', 'grade:edit', 'grade:export', 'attendance:add', 'attendance:edit', 'attendance:export'], builtin: true },
+      { code: 'student', name: '学生', desc: '查看公告与个人课程信息', menus: [1, 5, 6, 12, 13, 14, 15, 16], perms: [], builtin: true }
     ],
     // type: 1=菜单 2=按钮（按钮仅用于页面内权限控制）
     menus: [
@@ -42,7 +42,11 @@ function seed() {
       { id: 9, parentId: 7, name: '菜单管理', path: '/menus', icon: 'Menu', order: 2, hidden: 0, roles: ['super_admin'], type: 1 },
       { id: 10, parentId: 7, name: '角色权限', path: '/roles', icon: 'Key', order: 3, hidden: 0, roles: ['super_admin'], type: 1 },
       { id: 11, parentId: 7, name: '操作日志', path: '/logs', icon: 'Document', order: 4, hidden: 0, roles: ['super_admin'], type: 1 },
-      { id: 12, parentId: null, name: '个人空间', path: '/profile', icon: 'Avatar', order: 8, hidden: 0, roles: ['super_admin', 'admin', 'teacher', 'student'], type: 1 }
+      { id: 12, parentId: null, name: '个人空间', path: '/profile', icon: 'Avatar', order: 12, hidden: 0, roles: ['super_admin', 'admin', 'teacher', 'student'], type: 1 },
+      { id: 13, parentId: null, name: '成绩管理', path: '/grades', icon: 'TrendCharts', order: 7, hidden: 0, roles: ['super_admin', 'admin', 'teacher', 'student'], type: 1 },
+      { id: 14, parentId: null, name: '考勤管理', path: '/attendance', icon: 'Checked', order: 8, hidden: 0, roles: ['super_admin', 'admin', 'teacher', 'student'], type: 1 },
+      { id: 15, parentId: null, name: '我的课表', path: '/schedule', icon: 'Calendar', order: 5, hidden: 0, roles: ['student'], type: 1 },
+      { id: 16, parentId: null, name: '学分统计', path: '/credits', icon: 'DataAnalysis', order: 9, hidden: 0, roles: ['student'], type: 1 }
     ],
     classes: [
       { id: 1, name: '软件工程 2401 班', major: '软件工程', year: 2024, count: 38, counselor: 'teacher01', status: 1, createTime: now },
@@ -66,6 +70,37 @@ function seed() {
       { id: 4, title: '关于开展期中教学检查的通知', type: '教务通知', content: '第 9-10 周将开展期中教学检查，请各位教师提前准备教学文档与课件，配合督导组听课检查。', top: 0, status: 1, publishTime: '2026-09-20 16:00', author: 'admin02', createTime: now },
       { id: 5, title: '2026 届毕业生图像采集安排', type: '教务通知', content: '毕业生图像采集定于 11 月 5 日在图书馆报告厅进行，请毕业生按时到场，着装整洁。', top: 0, status: 0, publishTime: '2026-09-15 09:30', author: 'admin01', createTime: now }
     ],
+    grades: [
+      { id: 1, studentId: 1, studentName: '王小明', classId: 1, courseId: 1, term: '2026-2027-1', usual: 86, final: 88, total: 87, createTime: now },
+      { id: 2, studentId: 2, studentName: '李小红', classId: 1, courseId: 1, term: '2026-2027-1', usual: 92, final: 90, total: 91, createTime: now },
+      { id: 3, studentId: 3, studentName: '张伟', classId: 2, courseId: 1, term: '2026-2027-1', usual: 78, final: 81, total: 80, createTime: now },
+      { id: 4, studentId: 4, studentName: '刘芳', classId: 3, courseId: 2, term: '2026-2027-1', usual: 84, final: 79, total: 81, createTime: now }
+    ],
+    attendance: [
+      {
+        id: 1,
+        courseId: 1,
+        classId: 1,
+        date: '2026-10-12',
+        lesson: '第 1-2 节',
+        records: [
+          { studentId: 1, studentName: '王小明', status: '出勤' },
+          { studentId: 2, studentName: '李小红', status: '迟到' }
+        ],
+        createTime: now
+      },
+      {
+        id: 2,
+        courseId: 2,
+        classId: 3,
+        date: '2026-10-13',
+        lesson: '第 3-4 节',
+        records: [
+          { studentId: 4, studentName: '刘芳', status: '出勤' }
+        ],
+        createTime: now
+      }
+    ],
     logs: [],
     settings: { systemName: '教务管理系统', subTitle: 'Educational Administration Management System', footerText: '教务管理系统 · 前端框架技术实训项目', allowReset: 1 }
   }
@@ -75,7 +110,7 @@ function seed() {
 function load() {
   try {
     const raw = localStorage.getItem(DB_KEY)
-    if (raw) return JSON.parse(raw)
+    if (raw) return migrate(JSON.parse(raw))
   } catch (e) { /* 数据损坏时重新初始化 */ }
   const data = seed()
   localStorage.setItem(DB_KEY, JSON.stringify(data))
@@ -86,6 +121,43 @@ let db = load()
 
 function save() {
   localStorage.setItem(DB_KEY, JSON.stringify(db))
+}
+
+function migrate(data) {
+  const base = seed()
+  data.grades = data.grades || base.grades
+  data.attendance = data.attendance || base.attendance
+  data.notices = (data.notices || base.notices).filter((n) => !/^测试公告 \d{4}$/.test(n.title || ''))
+  data.settings = { ...base.settings, ...(data.settings || {}) }
+
+  const requiredMenus = [
+    { id: 13, parentId: null, name: '成绩管理', path: '/grades', icon: 'TrendCharts', order: 6, hidden: 0, roles: ['super_admin', 'admin', 'teacher', 'student'], type: 1 },
+    { id: 14, parentId: null, name: '考勤管理', path: '/attendance', icon: 'Checked', order: 7, hidden: 0, roles: ['super_admin', 'admin', 'teacher', 'student'], type: 1 },
+    { id: 15, parentId: null, name: '我的课表', path: '/schedule', icon: 'Calendar', order: 5, hidden: 0, roles: ['student'], type: 1 },
+    { id: 16, parentId: null, name: '学分统计', path: '/credits', icon: 'DataAnalysis', order: 8, hidden: 0, roles: ['student'], type: 1 }
+  ]
+  data.menus = data.menus || []
+  requiredMenus.forEach((menu) => {
+    const existing = data.menus.find((m) => m.id === menu.id || m.path === menu.path)
+    if (existing) Object.assign(existing, { ...menu, ...existing, roles: Array.from(new Set([...(existing.roles || []), ...menu.roles])) })
+    else data.menus.push(menu)
+  })
+
+  const roleDefaults = {
+    super_admin: { menus: [13, 14], perms: ['grade:add', 'grade:edit', 'grade:delete', 'grade:export', 'attendance:add', 'attendance:edit', 'attendance:delete', 'attendance:export'] },
+    admin: { menus: [13, 14], perms: ['grade:add', 'grade:edit', 'grade:delete', 'grade:export', 'attendance:add', 'attendance:edit', 'attendance:delete', 'attendance:export'] },
+    teacher: { menus: [13, 14], perms: ['grade:add', 'grade:edit', 'grade:export', 'attendance:add', 'attendance:edit', 'attendance:export'] },
+    student: { menus: [13, 14, 15, 16], perms: [] }
+  }
+  ;(data.roles || []).forEach((role) => {
+    const extra = roleDefaults[role.code]
+    if (!extra) return
+    role.menus = Array.from(new Set([...(role.menus || []), ...extra.menus]))
+    role.perms = role.perms?.includes('*') ? role.perms : Array.from(new Set([...(role.perms || []), ...extra.perms]))
+  })
+
+  localStorage.setItem(DB_KEY, JSON.stringify(data))
+  return data
 }
 
 function clone(v) {
@@ -362,6 +434,63 @@ export async function updateNotice(id, data) {
 export async function deleteNotice(id) {
   await delay()
   db.notices = db.notices.filter((n) => n.id !== id)
+  save()
+}
+
+/* ---------------- 成绩 ---------------- */
+export async function getGrades() {
+  await delay()
+  return clone(db.grades || [])
+}
+
+export async function saveGrade(data) {
+  await delay()
+  const total = Math.round((Number(data.usual || 0) * 0.4 + Number(data.final || 0) * 0.6) * 10) / 10
+  const existed = (db.grades || []).find((g) => g.studentId === data.studentId && g.courseId === data.courseId && g.term === data.term)
+  if (existed && existed.id !== data.id) throw new Error('该学生本学期该课程成绩已存在')
+  if (data.id) {
+    const grade = db.grades.find((g) => g.id === data.id)
+    if (!grade) throw new Error('成绩记录不存在')
+    Object.assign(grade, data, { total })
+    save()
+    return clone(grade)
+  }
+  const grade = { id: db.grades.reduce((m, g) => Math.max(m, Number(g.id) || 0), 0) + 1, createTime: nowStr(), ...data, total }
+  db.grades.push(grade)
+  save()
+  return clone(grade)
+}
+
+export async function deleteGrade(id) {
+  await delay()
+  db.grades = (db.grades || []).filter((g) => g.id !== id)
+  save()
+}
+
+/* ---------------- 考勤 ---------------- */
+export async function getAttendance() {
+  await delay()
+  return clone(db.attendance || [])
+}
+
+export async function saveAttendance(data) {
+  await delay()
+  if (data.id) {
+    const item = db.attendance.find((a) => a.id === data.id)
+    if (!item) throw new Error('考勤记录不存在')
+    Object.assign(item, data)
+    save()
+    return clone(item)
+  }
+  const item = { id: db.attendance.reduce((m, a) => Math.max(m, Number(a.id) || 0), 0) + 1, createTime: nowStr(), ...data }
+  db.attendance.unshift(item)
+  save()
+  return clone(item)
+}
+
+export async function deleteAttendance(id) {
+  await delay()
+  db.attendance = (db.attendance || []).filter((a) => a.id !== id)
   save()
 }
 

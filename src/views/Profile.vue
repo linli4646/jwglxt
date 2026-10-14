@@ -129,6 +129,16 @@ onMounted(async () => {
             <el-descriptions-item label="最近登录">{{ user?.lastLogin || '—' }}</el-descriptions-item>
             <el-descriptions-item label="登录次数">{{ user?.loginCount || 0 }} 次</el-descriptions-item>
           </el-descriptions>
+          <div class="account-strip">
+            <div class="account-item">
+              <span class="account-label">账号状态</span>
+              <el-tag round size="small" type="success" effect="light">{{ user?.status === 1 ? '启用' : '禁用' }}</el-tag>
+            </div>
+            <div class="account-item">
+              <span class="account-label">角色编码</span>
+              <span class="account-value">{{ user?.role }}</span>
+            </div>
+          </div>
         </template>
       </el-card>
 
@@ -139,7 +149,7 @@ onMounted(async () => {
             <div class="panel-title"><el-icon><Icons.EditPen /></el-icon> 编辑资料</div>
           </template>
           <el-skeleton v-if="loading" animated :rows="3" />
-          <el-form v-else :model="profile" label-width="70px" style="max-width: 420px">
+          <el-form v-else :model="profile" label-width="70px" class="profile-form edit-form">
             <el-form-item label="姓名">
               <el-input v-model="profile.name" />
             </el-form-item>
@@ -160,7 +170,7 @@ onMounted(async () => {
           <template #header>
             <div class="panel-title"><el-icon><Icons.Lock /></el-icon> 修改密码</div>
           </template>
-          <el-form :model="passwordForm" label-width="70px" style="max-width: 420px">
+          <el-form :model="passwordForm" label-width="70px" class="profile-form password-form">
             <el-form-item label="原密码">
               <el-input v-model="passwordForm.old" type="password" show-password />
             </el-form-item>
@@ -213,7 +223,8 @@ onMounted(async () => {
 <style scoped>
 .profile-grid {
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: 380px minmax(0, 1fr);
+  align-items: start;
   gap: 18px;
   margin-bottom: 18px;
 }
@@ -244,8 +255,60 @@ onMounted(async () => {
 .profile-tags { display: flex; align-items: center; gap: 10px; }
 .account { font-size: 13px; color: var(--text-light); }
 .profile-desc :deep(.el-descriptions__label) { width: 90px; }
+.account-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px dashed var(--border);
+}
+.account-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f7fafd;
+}
+.account-label { font-size: 12px; color: var(--text-light); }
+.account-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+  word-break: break-all;
+}
 
-.profile-right { display: flex; flex-direction: column; gap: 18px; }
+.profile-right {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+.profile-right :deep(.el-card__body) {
+  padding-right: 32px;
+}
+.profile-form {
+  display: grid;
+  gap: 0 18px;
+  width: 100%;
+}
+.edit-form { grid-template-columns: repeat(3, minmax(180px, 1fr)); }
+.password-form { grid-template-columns: repeat(3, minmax(180px, 1fr)); }
+.profile-form :deep(.el-form-item) { margin-bottom: 18px; }
+.profile-form :deep(.el-form-item:last-child) {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+}
+@media (max-width: 1280px) {
+  .edit-form,
+  .password-form { grid-template-columns: repeat(2, minmax(180px, 1fr)); }
+}
+@media (max-width: 760px) {
+  .edit-form,
+  .password-form,
+  .account-strip { grid-template-columns: 1fr; }
+}
 
 .panel-title {
   display: flex;

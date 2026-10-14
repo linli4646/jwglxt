@@ -18,9 +18,20 @@ const request = axios.create({
   }
 })
 
-// 查询全部学生：select=* 取所有字段，order=id.asc 按学号升序
-export function getAllStudents() {
-  return request.get('/xuesheng?select=*&order=id.asc')
+// 查询全部学生：Supabase/PostgREST 单次返回有上限，这里分批拉取后保持 axios 风格返回 { data }
+export async function getAllStudents() {
+  const pageSize = 1000
+  const all = []
+  let start = 0
+  while (true) {
+    const { data } = await request.get('/xuesheng?select=*&order=id.asc', {
+      headers: { Range: `${start}-${start + pageSize - 1}` }
+    })
+    all.push(...data)
+    if (data.length < pageSize) break
+    start += pageSize
+  }
+  return { data: all }
 }
 
 // 新增学生

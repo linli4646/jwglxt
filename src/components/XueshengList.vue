@@ -20,7 +20,7 @@
 
       <!-- 表格 -->
       <template v-else>
-        <el-table :data="students" style="width: 100%">
+        <el-table :data="pagedStudents" style="width: 100%">
           <el-table-column prop="id" label="学号" width="100" align="center" />
           <el-table-column prop="name" label="姓名" min-width="140">
             <template #default="{ row }">
@@ -49,6 +49,17 @@
             />
           </template>
         </el-table>
+
+        <div class="pager">
+          <el-pagination
+            v-model:current-page="page"
+            v-model:page-size="pageSize"
+            :total="students.length"
+            :page-sizes="[10, 20, 50, 100]"
+            layout="total, sizes, prev, pager, next, jumper"
+            background
+          />
+        </div>
       </template>
     </el-card>
 
@@ -83,7 +94,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import SkeletonTable from './SkeletonTable.vue'
 import EmptyState from './EmptyState.vue'
@@ -105,12 +116,17 @@ const dialogVisible = ref(false)
 const saving = ref(false)
 const isEdit = ref(false)
 const form = ref({ id: null, name: '', class: null, age: null })
+const page = ref(1)
+const pageSize = ref(10)
+
+const pagedStudents = computed(() => students.value.slice((page.value - 1) * pageSize.value, page.value * pageSize.value))
 
 async function loadStudents() {
   loading.value = true
   try {
     const { data } = await getAllStudents()
     students.value = data
+    if ((page.value - 1) * pageSize.value >= students.value.length) page.value = 1
   } catch (e) {
     ElMessage.error('加载学生数据失败：' + (e.response?.data?.message || e.message))
   } finally {
@@ -244,6 +260,12 @@ onMounted(loadStudents)
 }
 :deep(.el-table__row) {
   transition: background-color 0.2s;
+}
+
+.pager {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
 }
 
 @media (max-width: 768px) {

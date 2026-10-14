@@ -179,12 +179,14 @@ onMounted(load)
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="230" align="center">
+          <el-table-column label="操作" width="330" align="center" fixed="right">
             <template #default="{ row }">
-              <el-button v-perm="'menu:manage'" size="small" round type="primary" plain @click="openAdd(row.id)">加子菜单</el-button>
-              <el-button v-perm="'menu:manage'" size="small" round @click="openEdit(row)">编辑</el-button>
-              <el-button v-perm="'menu:manage'" size="small" round plain @click="toggleHidden(row)">{{ row.hidden ? '显示' : '隐藏' }}</el-button>
-              <el-button v-perm="'menu:manage'" size="small" type="danger" plain round @click="handleDelete(row)">删除</el-button>
+              <div class="action-buttons">
+                <el-button v-perm="'menu:manage'" size="small" round type="primary" plain @click="openAdd(row.id)">加子菜单</el-button>
+                <el-button v-perm="'menu:manage'" size="small" round @click="openEdit(row)">编辑</el-button>
+                <el-button v-perm="'menu:manage'" size="small" round plain @click="toggleHidden(row)">{{ row.hidden ? '显示' : '隐藏' }}</el-button>
+                <el-button v-perm="'menu:manage'" size="small" type="danger" plain round @click="handleDelete(row)">删除</el-button>
+              </div>
             </template>
           </el-table-column>
           <template #empty>
@@ -258,4 +260,12 @@ onMounted(load)
   color: var(--primary);
 }
 .cell-sub { font-size: 12px; color: var(--text-light); }
+.action-buttons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.action-buttons :deep(.el-button + .el-button) { margin-left: 0; }
 </style>
