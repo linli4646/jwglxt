@@ -1,24 +1,64 @@
 <template>
   <!-- html文件 -->
-  <!-- Vue3 虽支持多根节点(Fragment)，但建议使用单根容器包裹，便于统一样式与结构扩展 -->
+  <!-- 页面主体：撑满剩余高度，让页脚始终贴底 -->
   <div class="helloworld">
-    <!-- 原内联样式 font-size:40px 抽取为下面的 .app-title 类，便于复用与维护 -->
-    <div class="mytitle">教务管理系统</div>
-    <el-button>按钮</el-button>
-<el-input />
-    <!-- 以下为演示占位内容，后续可替换为真实业务内容 -->
-    <h1>dddd</h1>
-    <p>4444</p>
+    <!-- 顶部横幅：渐变背景 + 主副标题。
+         上方留白 margin-top 和大内边距同时解决了“标题贴住窗口顶端、看着像被裁掉”的问题 -->
+    <header class="banner">
+      <h1 class="banner-title">教务管理系统</h1>
+      <p class="banner-sub">Educational Administration Management System</p>
+    </header>
+
+    <!-- 学生信息表：数据来自 Supabase 的 xuesheng 表，支持增删改查 -->
+    <XueshengList />
   </div>
 </template>
 
 <script setup>
 // javascript语句
-// Vue3 推荐使用 <script setup> 写法；如需公共样式，可在此引入：
-// import '../css/common.css'（本组件位于 src/components/ 下）
+import XueshengList from './XueshengList.vue'
 </script>
 
 <style scoped>
 /* css语句 */
-@import "../css/common.css";
+.helloworld {
+  flex: 1 0 auto; /* 占据页脚以外的全部高度 */
+}
+
+.banner {
+  margin: 24px 16px 0;
+  padding: 42px 24px 38px;
+  border-radius: 14px;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 55%, #1b87db 100%);
+  box-shadow: var(--shadow);
+}
+
+.banner-title {
+  margin: 0;
+  font-size: 38px;
+  font-weight: 600;
+  letter-spacing: 8px; /* 中文字距拉开更有标题感 */
+  text-indent: 8px;    /* 抵消最后一个字的字距，保证视觉居中 */
+}
+
+.banner-sub {
+  margin: 10px 0 0;
+  font-size: 13px;
+  letter-spacing: 2px;
+  opacity: 0.72;
+}
+
+@media (max-width: 768px) {
+  .banner {
+    margin: 12px 10px 0;
+    padding: 30px 16px 26px;
+  }
+  .banner-title {
+    font-size: 28px;
+    letter-spacing: 4px;
+    text-indent: 4px;
+  }
+}
 </style>

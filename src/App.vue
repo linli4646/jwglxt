@@ -1,9 +1,11 @@
 <script setup>
-import Bottom from './components/Bottom.vue';
-import HelloWorld from './components/HelloWorld.vue'
+// 根组件：交给路由渲染
 </script>
 
 <template>
-  <HelloWorld />
-  <Bottom />
+  <router-view v-slot="{ Component }">
+    <transition name="fade" mode="out-in">
+      <component :is="Component" />
+    </transition>
+  </router-view>
 </template>
